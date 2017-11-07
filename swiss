@@ -1,0 +1,98 @@
+# 07-11-2017#MONICA GUTIERREZ VIEYRA
+#07/11/2017
+
+#Comparación de modelos
+#Pretendemos seleccionar el mejor subconjunto de predictores
+#En este caso para la acplicación del MRM tenemos dos variables
+#independientes (calidad y capacidad) por lo que se propone
+#comparar 3 modelos con la fnalida de aplicar el 
+#principio de pasimonia, conocer variables independinetes innecesarias
+#evitar multicolinealidad, es decir, que se tienen muchas variables
+#qintentando explicar el modelo ante estas variables se pueden comparar tres modelos
+#1)precio ~ capacidad
+#2) precio~ calidad
+#3) precio~ calidad + capacidad
+#####¿CÓMO SELECCIONAR EL MEJOR MODELO
+#Criterio de inofmración de AKAIKE (AIC)
+#El problema de utilizar R2 para comparar modelos es en muchos casos
+#al añadir nuevas variables al modelo, esta medida crece.
+#Si estamos decidiendo cual de todos los modelos ajusta mejor a los datos
+#el modelo con más predictores siempre será el mejor ajustado
+#para evitar esto se utiliza el AIC, una medida de ajuste que penaliza el modelo
+#por tener más variables. Viene definido por
+#AIC=(n)(log(SCR/n))+2k
+#SCR=Suma de cuadrados residuales
+#n es el número de casos en el modelo
+#k es el npúmero de variables independientes
+#El critero que se utiliza para el AIC es elegir el modelo que
+#tenga el menor valor de IC, es decir, esperamos un AIC más pequeño
+#El ATC nos va a ayudar a decidir sobre la comparación de los modelos
+#####El método más recomendado es el m+etodo de step by step
+#####adentro del método step by step hay 3 modalidades:
+#####1)FORWARD: parte del coeficiente B0 y de ahí va probando las variables
+#####independientes para ver cual es la que mas aporte al modelo
+#####2)BACKWARD: R empeza con todas las var indep y estudia si el AIC
+#####baja cuando hay cambios de variables
+#####3) BOTH: empieza como el forward la diferencia es que se realizan
+##### test para conocer el predictor menos útil
+##### el método más recomendable es el backaward porque tienen un efecto represor
+##### que permite probar cuando una variable tiene influencia solo si
+#####otra variable se mantiene constante
+#***vamos a calcular el modelo con las 2 var indep
+
+
+##* var 1 capacidad (tamaño)
+capa<-c(4330,5500,5550,4700,5200,5500,4700,5500,5800,5000)
+##* var 2 calidad
+calidad<-c(2,3,4,3,4,4,4,5,5,5)
+##* var 3 (dependiente)
+precio<-c(190,219,249,249,250,340,289,395,439,525)
+
+moch<-data.frame(precio,capa,calidad)
+mod1<-lm(precio~capa+calidad,data=moch)
+summary(mod1)
+
+#en los coeficientes observamos el estadístico T que solo tenemos significativa la car calidad
+#tenemos un error estándar residualde 58.35 que es un error alto
+#también observamos la r ajustada por MRM que tenemos una r ajustada de .77
+#lo que explica 77% de la variabilidad del modelo observamos que
+#tenemos un estadístico F como un buen valor y p valor menor a .05 que implica que 
+#este modelo es mejor que el modelo básico 
+
+#AHORA vamos a utilizar la función step()
+#para ver si podemos mejorar el ajuste del modelo
+step(mod1,direction = "backward")
+#aquí podemos ver que el método step analizó 2 modelos
+#1) precio~ capa+calidad con un AIC=83.76
+#2) precio~ calidad con un AIC=83.51
+
+
+#####AHORA, vamos aprobar con el método both
+step(mod1,direction="both")
+#tenemos un resultado igual al de backward por la forma que se contruye este método
+
+#####AHORA, con el método forward
+step(mod1,direction="forward")
+#en este solo muestra el modelo completo porque inicia haciendo pruebas con 
+#el modelo nulo y solo deja el modelo completo porque es el que mayor AIC muestra
+
+
+
+help(datasets)
+library(help="datasets")
+require(datasets);data(swiss);?swiss
+#aplicar un modelo con la variable dependiente fertility a este
+#modelo tienen que agregarle 3 variables independientes
+#Van a realizar una descripción de la función summary del modelo completo
+#(var dep=inde1+inde2+inde3)
+#la base de datos que van a usar es swiss
+#una vez que hagan la descripción del modelo completo, aplicar el criterio
+#AIC para comparar los modelos posibles de su modelo completo,
+#ya que hayan elegido un modelo con base en el AIC aplicarlo y 
+#describir la función summary de su mejor modelo según AIC
+mode(swiss)
+swiss$Fertility
+
+##*En este caso nos quedamos con el mejor AIC que es el modelo que es:
+##precio~ calidad
+##A este modelo le sacamos la tabla anova
